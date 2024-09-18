@@ -4,7 +4,10 @@ const path = require("path");
 
 const stats = {
   directories: 0,
-  files: 1,
+  files: {
+    readed: 0,
+    compressed: 0,
+  },
 };
 
 const config = {
@@ -46,12 +49,27 @@ const clearStr = (str) =>
     const files = data.filter((file) => !file.isDirectory());
     // const file = path.join(directory, file.name);
     files.forEach(async (file) => {
-      stats.files++;
+      stats.files.readed++;
+      console.log("Reading: ", clearStr(file.name), stats.files.readed);
       const buffer = fs.readFileSync(path.join(file.path, file.name));
-      const compressed = await sharp(buffer)
-      .resize(config.width, config.height)
-      .toBuffer();
-      console.log(clearStr(file.name));
+      const metadata = await sharp(buffer).metadata();
+      let compressed = buffer;
+      if (
+        metadata &&
+        metadata.width > config.width &&
+        metadata.height > config.height
+      ) {
+        console.log("Compressing: ", clearStr(file.name));
+        compressed = await sharp(buffer)
+          .resize(config.width, config.height)
+          .toBuffer();
+        stats.files.compressed++;
+        console.log(
+          "Compressed: ",
+          clearStr(file.name),
+          stats.files.compressed
+        );
+      }
       fs.writeFileSync(
         path.join(
           clearStr(file.path.replace("assets", "compressed")),
