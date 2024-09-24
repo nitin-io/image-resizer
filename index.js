@@ -17,6 +17,18 @@ const config = {
 };
 
 const directories = [config.inputFolderPath];
+const dirStrClear = (str) =>
+  str
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/&/g, "-and-") // Replace & with 'and'
+    .replace(/[^\w\-\/\\\\]+/g, "")
+    .replace(/-$/, "")
+    .replace(/[-_]+/g, "_") // Replace -_ with _
+    .replace(/[-_]\.+/g, ".")
+    .replace(/\-\-+/g, "-"); // Replace multiple - with single -
 const clearStr = (str) =>
   str
     .toString()
